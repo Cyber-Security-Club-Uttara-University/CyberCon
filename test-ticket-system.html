@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Ticket System - CyberCon 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .error-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            transition: border 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        #output {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status.success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .status.error {
+            background: #f44336;
+            color: white;
+        }
+        
+        .status.pending {
+            background: #ff9800;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Ticket System Debugger</h1>
+        <p class="subtitle">Test your Google Apps Script integration</p>
+        
+        <div class="test-section">
+            <h2>📋 Configuration Status</h2>
+            <div id="configStatus"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎫 Test Ticket Creation</h2>
+            <button onclick="testCreateTicket()">Create Test Ticket</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>✅ Test Ticket Verification</h2>
+            <input type="text" id="testTicketId" placeholder="Enter Ticket ID (e.g., CC2025-123456)">
+            <button onclick="testVerifyTicket()">Verify Ticket</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Console Output</h2>
+            <div id="output">Ready to test...\n</div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnhTDa9eZ0ffAc8v62diHOWRihpGyhgeVF1Mrmo7i5SR04qF6VOk2FfCexh1hS5n5gFg/exec';
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            let prefix = '✓';
+            
+            if (type === 'error') prefix = '❌';
+            if (type === 'warning') prefix = '⚠️';
+            if (type === 'info') prefix = '📌';
+            
+            output.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        // Check configuration on load
+        window.addEventListener('load', () => {
+            const configDiv = document.getElementById('configStatus');
+            
+            if (SCRIPT_URL && SCRIPT_URL.includes('script.google.com')) {
+                configDiv.innerHTML = `
+                    <div class="success-box">
+                        <strong>✓ Script URL Configured</strong><br>
+                        <small>${SCRIPT_URL}</small>
+                    </div>
+                `;
+                log('Configuration loaded successfully');
+            } else {
+                configDiv.innerHTML = `
+                    <div class="error-box">
+                        <strong>❌ Invalid Script URL</strong><br>
+                        Please configure your Google Apps Script Web App URL
+                    </div>
+                `;
+                log('Invalid script URL configuration', 'error');
+            }
+        });
+        
+        async function testCreateTicket() {
+            log('Starting ticket creation test...');
+            
+            const testData = {
+                action: 'createTicket',
+                ticketType: 'student',
+                name: 'Test User ' + Math.floor(Math.random() * 1000),
+                email: 'test' + Math.floor(Math.random() * 1000) + '@example.com',
+                phone: '+8801712345678',
+                organization: 'Uttara University',
+                tshirtSize: 'L',
+                paymentMethod: 'bkash',
+                amount: 500,
+                timestamp: new Date().toISOString()
+            };
+            
+            log(`Test data: ${JSON.stringify(testData, null, 2)}`);
+            
+            try {
+                log('Sending request to Google Apps Script...');
+                
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                log('Request sent (no-cors mode - cannot read response)', 'warning');
+                log('Waiting 2 seconds for Google Sheets to process...');
+                
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                log('✓ Ticket creation request completed!', 'info');
+                log('Check your Google Sheet to verify the ticket was created');
+                log('Sheet URL: https://docs.google.com/spreadsheets/d/1r58LMmLIOfKJ_Psz5xhKNOD7G_W5XGeha-LEV2SV7vU/edit');
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+            }
+        }
+        
+        async function testVerifyTicket() {
+            const ticketId = document.getElementById('testTicketId').value.trim();
+            
+            if (!ticketId) {
+                log('Please enter a ticket ID', 'error');
+                return;
+            }
+            
+            log(`Verifying ticket: ${ticketId}`);
+            
+            try {
+                log('Sending GET request to Apps Script...');
+                
+                const url = `${SCRIPT_URL}?action=verifyTicket&ticketId=${ticketId}`;
+                log(`URL: ${url}`);
+                
+                const response = await fetch(url);
+                log(`Response status: ${response.status}`);
+                
+                const result = await response.json();
+                log(`Response: ${JSON.stringify(result, null, 2)}`);
+                
+                if (result.success) {
+                    log('✓ Ticket verified successfully!', 'info');
+                    log(`Ticket details: ${JSON.stringify(result.ticket, null, 2)}`);
+                } else {
+                    log(`Verification failed: ${result.message}`, 'warning');
+                }
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
